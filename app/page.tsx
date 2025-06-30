@@ -11,6 +11,7 @@ import { useImportExport } from "@/hooks/useImportExport"
 import { ActionButtons } from "@/components/action-buttons"
 import { OverallSummary } from "@/components/overall-summary"
 import { PageSkeleton } from "@/components/page-skeleton"
+import { Unauthenticated } from "convex/react"
 
 export default function BaroInventoryManager() {
   const { itemsByCategory, allItems } = useBaroData()
@@ -63,6 +64,15 @@ export default function BaroInventoryManager() {
             isSaving={isSaving}
           />
         </div>
+
+        <Unauthenticated>
+          <div className="bg-yellow-50 p-4 rounded-md">
+            <p className="text-foreground">
+              This tool works just fine if youre not logged in, but data is saved locally.
+              When you are logged in, your data will be saved to the cloud and synced across devices instantly.
+            </p>
+          </div>
+        </Unauthenticated>
 
         {/* Overall Summary */}
         <OverallSummary {...overallTotals} />
