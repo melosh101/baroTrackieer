@@ -1,73 +1,51 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useMemo, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { ItemCard } from "@/components/item-card"
-import { parseItemData, calculateTotals, formatNumber } from "@/lib/data-utils"
+import { calculateTotals, formatNumber } from "@/lib/data-utils"
 import { ArrowLeft, Search, Filter, SortAsc, SortDesc, CheckSquare, Square } from "lucide-react"
-
-// Import the data
-import miscData from "@/data/misc"
-import appearanceData from "@/data/appearance"
-import modsData from "@/data/mods"
-import weaponsData from "@/data/weapons"
+import { useBaroData } from "@/hooks/useBaroData"
+import { useOwnedItems } from "@/hooks/useOwnedItems"
+import { useImportExport } from "@/hooks/useImportExport"
+import { PageSkeleton } from "@/components/page-skeleton"
+import { ViewAllPageSkeleton } from "@/components/view-all-page-skeleton"
+import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
+import { ViewAllSummaryCards } from "@/components/view-all-summary-cards"
+import { ItemGrid } from "@/components/item-grid"
+import { ViewAllBottomSummary } from "@/components/view-all-bottom-summary"
+import { ActionButtons } from "@/components/action-buttons"
 
 type SortOption = "name" | "ducats" | "credits" | "category"
 type FilterOption = "all" | "owned" | "missing" | "misc" | "appearance" | "mods" | "weapons"
 
 export default function ViewAllPage() {
-  const [ownedItems, setOwnedItems] = useState<Set<string>>(new Set())
-  const [isLoaded, setIsLoaded] = useState(false)
+  const { allItems } = useBaroData()
+  const {
+    ownedItems,
+    isLoaded,
+    isSaving,
+    toggleItem,
+    toggleAllItems,
+    setOwnedFromImport,
+    resetItems,
+  } = useOwnedItems()
+  const { exportData, importData } = useImportExport()
+  
+  // Performance monitoring (disabled by default)
+  usePerformanceMonitor("ViewAllPage", false)
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState<SortOption>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [filterBy, setFilterBy] = useState<FilterOption>("all")
   const [priceRange, setPriceRange] = useState({ min: "", max: "" })
 
-  // Parse all data
-  const allItems = useMemo(
-    () => [
-      ...parseItemData(miscData, "Miscellaneous"),
-      ...parseItemData(appearanceData, "Appearance"),
-      ...parseItemData(modsData, "Mods"),
-      ...parseItemData(weaponsData, "Weapons"),
-    ],
-    [],
-  )
-
-  // Load owned items from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("baro-owned-items")
-    if (saved) {
-      setOwnedItems(new Set(JSON.parse(saved)))
-    }
-    setIsLoaded(true)
-  }, [])
-
-  // Save owned items to localStorage
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem("baro-owned-items", JSON.stringify([...ownedItems]))
-    }
-  }, [ownedItems, isLoaded])
-
-  const toggleItem = (itemName: string) => {
-    setOwnedItems((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(itemName)) {
-        newSet.delete(itemName)
-      } else {
-        newSet.add(itemName)
-      }
-      return newSet
-    })
-  }
-
-  // Filter and sort items
+  // Memoized filter and sort operations
   const filteredAndSortedItems = useMemo(() => {
     const filtered = allItems.filter((item) => {
       // Search filter
@@ -117,30 +95,55 @@ export default function ViewAllPage() {
     return filtered
   }, [allItems, searchTerm, sortBy, sortOrder, filterBy, priceRange, ownedItems])
 
-  const toggleAllVisible = () => {
-    const allOwned = filteredAndSortedItems.every((item) => ownedItems.has(item.name))
+  // Memoized calculations
+  const totals = useMemo(() => calculateTotals(allItems, ownedItems), [allItems, ownedItems])
+  const visibleTotals = useMemo(() => calculateTotals(filteredAndSortedItems, ownedItems), [filteredAndSortedItems, ownedItems])
 
-    setOwnedItems((prev) => {
-      const newSet = new Set(prev)
-      filteredAndSortedItems.forEach((item) => {
-        if (allOwned) {
-          newSet.delete(item.name)
-        } else {
-          newSet.add(item.name)
-        }
-      })
-      return newSet
-    })
-  }
+  const allVisibleOwned = useMemo(() => 
+    filteredAndSortedItems.length > 0 && filteredAndSortedItems.every((item) => ownedItems.has(item.name)),
+    [filteredAndSortedItems, ownedItems]
+  )
 
-  const totals = calculateTotals(allItems, ownedItems)
-  const visibleTotals = calculateTotals(filteredAndSortedItems, ownedItems)
+  // Optimized event handlers
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value)
+  }, [])
 
-  const allVisibleOwned =
-    filteredAndSortedItems.length > 0 && filteredAndSortedItems.every((item) => ownedItems.has(item.name))
+  const handleSortOrderToggle = useCallback(() => {
+    setSortOrder(current => current === "asc" ? "desc" : "asc")
+  }, [])
+
+  const handlePriceRangeChange = useCallback((field: "min" | "max") => 
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setPriceRange(prev => ({ ...prev, [field]: e.target.value }))
+    }, []
+  )
+
+  const toggleAllVisible = useCallback(() => {
+    const shouldUnmark = filteredAndSortedItems.every((item) => ownedItems.has(item.name))
+    toggleAllItems(filteredAndSortedItems, !shouldUnmark)
+  }, [filteredAndSortedItems, ownedItems, toggleAllItems])
+
+  const handleGoBack = useCallback(() => {
+    window.history.back()
+  }, [])
+
+  const handleExport = useCallback(() => {
+    exportData(ownedItems)
+  }, [exportData, ownedItems])
+
+  const handleImport = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    importData(event, setOwnedFromImport)
+  }, [importData, setOwnedFromImport])
+
+  const handleReset = useCallback(() => {
+    if (confirm("Are you sure you want to reset all data? This cannot be undone.")) {
+      resetItems()
+    }
+  }, [resetItems])
 
   if (!isLoaded) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <ViewAllPageSkeleton />
   }
 
   return (
@@ -149,46 +152,30 @@ export default function ViewAllPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => window.history.back()} className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              onClick={handleGoBack} 
+              className="flex items-center gap-2"
+            >
               <ArrowLeft className="h-4 w-4" />
-              Back
+              <span className="hidden sm:inline">Back</span>
             </Button>
             <div>
               <h1 className="text-3xl font-bold">All Baro Ki'teer Items</h1>
               <p className="text-muted-foreground">Complete inventory view with advanced filtering</p>
             </div>
           </div>
+
+          <ActionButtons
+            onExport={handleExport}
+            onImport={handleImport}
+            onReset={handleReset}
+            isSaving={isSaving}
+          />
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">{totals.total}</div>
-              <div className="text-sm text-muted-foreground">Total Items</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">{totals.owned}</div>
-              <div className="text-sm text-muted-foreground">Owned</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">{totals.missing}</div>
-              <div className="text-sm text-muted-foreground">Missing</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {Math.round((totals.owned / totals.total) * 100)}%
-              </div>
-              <div className="text-sm text-muted-foreground">Complete</div>
-            </CardContent>
-          </Card>
-        </div>
+        <ViewAllSummaryCards totals={totals} />
 
         {/* Filters and Controls */}
         <Card>
@@ -205,7 +192,7 @@ export default function ViewAllPage() {
               <Input
                 placeholder="Search items..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10"
               />
             </div>
@@ -249,18 +236,20 @@ export default function ViewAllPage() {
                 <label className="text-sm font-medium mb-2 block">Order</label>
                 <Button
                   variant="outline"
-                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  onClick={handleSortOrderToggle}
                   className="w-full justify-start"
                 >
                   {sortOrder === "asc" ? (
                     <>
                       <SortAsc className="h-4 w-4 mr-2" />
-                      Ascending
+                      <span className="hidden sm:inline">Ascending</span>
+                      <span className="sm:hidden">Asc</span>
                     </>
                   ) : (
                     <>
                       <SortDesc className="h-4 w-4 mr-2" />
-                      Descending
+                      <span className="hidden sm:inline">Descending</span>
+                      <span className="sm:hidden">Desc</span>
                     </>
                   )}
                 </Button>
@@ -272,12 +261,14 @@ export default function ViewAllPage() {
                   {allVisibleOwned ? (
                     <>
                       <Square className="h-4 w-4 mr-2" />
-                      Unmark All
+                      <span className="hidden sm:inline">Unmark All</span>
+                      <span className="sm:hidden">Unmark</span>
                     </>
                   ) : (
                     <>
                       <CheckSquare className="h-4 w-4 mr-2" />
-                      Mark All
+                      <span className="hidden sm:inline">Mark All</span>
+                      <span className="sm:hidden">Mark</span>
                     </>
                   )}
                 </Button>
@@ -292,13 +283,13 @@ export default function ViewAllPage() {
                   placeholder="Min"
                   type="number"
                   value={priceRange.min}
-                  onChange={(e) => setPriceRange((prev) => ({ ...prev, min: e.target.value }))}
+                  onChange={handlePriceRangeChange("min")}
                 />
                 <Input
                   placeholder="Max"
                   type="number"
                   value={priceRange.max}
-                  onChange={(e) => setPriceRange((prev) => ({ ...prev, max: e.target.value }))}
+                  onChange={handlePriceRangeChange("max")}
                 />
               </div>
             </div>
@@ -310,6 +301,7 @@ export default function ViewAllPage() {
           <span>
             Showing {filteredAndSortedItems.length} of {allItems.length} items
           </span>
+          {isSaving && <Badge variant="secondary">Saving...</Badge>}
           {visibleTotals.owned > 0 && <Badge variant="secondary">{visibleTotals.owned} owned</Badge>}
           {visibleTotals.missing > 0 && <Badge variant="outline">{visibleTotals.missing} missing</Badge>}
           {visibleTotals.missingDucats > 0 && (
@@ -318,60 +310,17 @@ export default function ViewAllPage() {
         </div>
 
         {/* Items Grid */}
-        {filteredAndSortedItems.length > 0 ? (
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredAndSortedItems.map((item) => (
-              <div key={item.name} className="relative">
-                <ItemCard item={item} isOwned={ownedItems.has(item.name)} onToggle={toggleItem} />
-                <Badge variant="outline" className="absolute top-2 right-2 text-xs">
-                  {item.category === "Miscellaneous" ? "Misc" : item.category}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <div className="text-muted-foreground">No items found matching your filters.</div>
-            </CardContent>
-          </Card>
-        )}
+        <ItemGrid 
+          items={filteredAndSortedItems}
+          ownedItems={ownedItems}
+          onToggleItem={toggleItem}
+        />
 
         {/* Bottom Summary */}
-        {filteredAndSortedItems.length > 0 && (
-          <Card>
-            <CardContent className="p-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2">Visible Items Cost:</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Missing Ducats:</span>
-                      <span className="font-mono">{formatNumber(visibleTotals.missingDucats)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Missing Credits:</span>
-                      <span className="font-mono">{formatNumber(visibleTotals.missingCredits)}</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Visible Items Value:</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span>Owned Ducats:</span>
-                      <span className="font-mono text-green-600">{formatNumber(visibleTotals.ownedDucats)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Owned Credits:</span>
-                      <span className="font-mono text-green-600">{formatNumber(visibleTotals.ownedCredits)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <ViewAllBottomSummary 
+          visibleTotals={visibleTotals}
+          showSummary={filteredAndSortedItems.length > 0}
+        />
       </div>
     </div>
   )

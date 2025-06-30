@@ -1,11 +1,19 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { ConvexClientProvider } from "./ConvexClientProvider";
+import { ConvexClientProvider } from "./ConvexClientProvider"
+import { ErrorBoundary } from "@/components/error-boundary"
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Baro Ki\'teer Inventory Manager - Warframe Void Trader Tracker',
+  description: 'Track your Baro Ki\'teer purchases and calculate missing items from the Void Trader in Warframe. Manage your ducat and credit spending efficiently.',
+  keywords: 'Warframe, Baro Ki\'teer, Void Trader, inventory, tracker, ducats, credits, prime',
+  authors: [{ name: 'Baro Tracker' }],
+  robots: 'index, follow',
+  openGraph: {
+    title: 'Baro Ki\'teer Inventory Manager',
+    description: 'Track your Void Trader purchases and calculate missing items in Warframe',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({
@@ -14,8 +22,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-        <html lang="en">
-          <body><ConvexClientProvider>{children}</ConvexClientProvider></body>
-        </html>
+    <html lang="en">
+      <body>
+        <ConvexClientProvider>
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </ConvexClientProvider>
+      </body>
+    </html>
   )
 }
