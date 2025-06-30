@@ -6,7 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "bunx convex deploy && next start"
   },
   "dependencies": {
     "@auth/core": "0.37.0",
