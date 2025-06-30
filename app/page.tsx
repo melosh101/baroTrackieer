@@ -16,11 +16,15 @@ import miscData from "@/data/misc"
 import appearanceData from "@/data/appearance"
 import modsData from "@/data/mods"
 import weaponsData from "@/data/weapons"
+import AuthButtons from "@/components/AuthButtons"
+import { useMutation, useQuery } from "convex/react"
+import { api } from "@/convex/_generated/api"
 
 export default function BaroInventoryManager() {
   const [ownedItems, setOwnedItems] = useState<Set<string>>(new Set())
   const [isLoaded, setIsLoaded] = useState(false)
-
+  const currentUser = useQuery(api.userFunctions.currentUser);
+  const mutateSaveState = useMutation(api.userFunctions.setUserSaveState)
   // Parse all data
   const allItems = [
     ...parseItemData(miscData, "Miscellaneous"),
@@ -39,8 +43,18 @@ export default function BaroInventoryManager() {
   // Load owned items from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("baro-owned-items")
-    if (saved) {
-      setOwnedItems(new Set(JSON.parse(saved)))
+    if (!currentUser) {
+      if (saved) {
+        setOwnedItems(new Set(JSON.parse(saved)))
+      }
+      setIsLoaded(true)
+      return;
+    }
+    const data = useQuery(api.userFunctions.getUserSaveState);
+    if (data) {
+      setOwnedItems(new Set(data))
+    } else {
+      setOwnedItems(new Set())
     }
     setIsLoaded(true)
   }, [])
@@ -48,7 +62,19 @@ export default function BaroInventoryManager() {
   // Save owned items to localStorage
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem("baro-owned-items", JSON.stringify([...ownedItems]))
+      if (!currentUser) {
+        localStorage.setItem("baro-owned-items", JSON.stringify([...ownedItems]))
+        return;
+      }
+
+      mutateSaveState({
+        ownedItems: [...ownedItems],
+      }).then(() => {
+        localStorage.setItem("baro-owned-items", JSON.stringify([...ownedItems]))
+      }).catch((error) => {
+        console.error("Failed to save owned items:", error)
+      })
+
     }
   }, [ownedItems, isLoaded])
 
@@ -157,6 +183,7 @@ export default function BaroInventoryManager() {
               <RotateCcw className="h-4 w-4" />
               Reset
             </Button>
+            <AuthButtons />
           </div>
         </div>
 
