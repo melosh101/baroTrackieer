@@ -1,7 +1,149 @@
 const weapons = [
-  { name: "Vastilok", ducat: "550  550", credit: "325,000" },
-  { name: "Opticor Vandal", ducat: "650  650", credit: "550,000" },
-  // … (keep the rest of the array exactly as in weapons.json)
+  {
+    "name": "Vastilok",
+    "ducat": "550",
+    "credit": "325,000"
+  },
+  {
+    "name": "Opticor Vandal",
+    "ducat": "650",
+    "credit": "550,000"
+  },
+  {
+    "name": "Gotva Prime",
+    "ducat": "675",
+    "credit": "625,000"
+  },
+  {
+    "name": "Prisma Ohma",
+    "ducat": "450",
+    "credit": "175,000"
+  },
+  {
+    "name": "Prisma Lenz",
+    "ducat": "575",
+    "credit": "200,000"
+  },
+  {
+    "name": "Vericres",
+    "ducat": "410",
+    "credit": "200,000"
+  },
+  {
+    "name": "Prisma Dual Decurions",
+    "ducat": "525",
+    "credit": "175,000"
+  },
+  {
+    "name": "Halikar Wraith",
+    "ducat": "450",
+    "credit": "350,000"
+  },
+  {
+    "name": "Prisma Machete",
+    "ducat": "400",
+    "credit": "200,000"
+  },
+  {
+    "name": "Mara Detron",
+    "ducat": "500",
+    "credit": "200,000"
+  },
+  {
+    "name": "Glaxion Vandal",
+    "ducat": "475",
+    "credit": "250,000"
+  },
+  {
+    "name": "Ignis Wraith",
+    "ducat": "550",
+    "credit": "250,000"
+  },
+  {
+    "name": "Machete Wraith",
+    "ducat": "410",
+    "credit": "250,000"
+  },
+  {
+    "name": "Prisma Angstrum",
+    "ducat": "475",
+    "credit": "210,000"
+  },
+  {
+    "name": "Prisma Dual Cleavers",
+    "ducat": "490",
+    "credit": "200,000"
+  },
+  {
+    "name": "Prisma Gorgon",
+    "ducat": "600",
+    "credit": "50,000"
+  },
+  {
+    "name": "Prisma Grakata",
+    "ducat": "610",
+    "credit": "100,000"
+  },
+  {
+    "name": "Prisma Grinlok",
+    "ducat": "500",
+    "credit": "220,000"
+  },
+  {
+    "name": "Prisma Obex",
+    "ducat": "500",
+    "credit": "175,000"
+  },
+  {
+    "name": "Prisma Skana",
+    "ducat": "510",
+    "credit": "175,000"
+  },
+  {
+    "name": "Prisma Tetra",
+    "ducat": "400",
+    "credit": "50,000"
+  },
+  {
+    "name": "Prisma Twin Gremlins",
+    "ducat": "500",
+    "credit": "220,000"
+  },
+  {
+    "name": "Prisma Veritux",
+    "ducat": "550",
+    "credit": "150,000"
+  },
+  {
+    "name": "Prova Vandal",
+    "ducat": "410",
+    "credit": "250,000"
+  },
+  {
+    "name": "Quanta Vandal",
+    "ducat": "450",
+    "credit": "300,000"
+  },
+  {
+    "name": "Supra Vandal",
+    "ducat": "500",
+    "credit": "275,000"
+  },
+  {
+    "name": "Viper Wraith",
+    "ducat": "400",
+    "credit": "75,000"
+  },
+  {
+    "name": "Vulkar Wraith",
+    "ducat": "450",
+    "credit": "300,000"
+  },
+  {
+    "name": "Zylok",
+    "ducat": "500",
+    "credit": "200,000"
+  }
 ] as const
 
 export default weapons
