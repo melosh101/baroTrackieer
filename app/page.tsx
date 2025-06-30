@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { SummaryCard } from "@/components/summary-card"
 import { ItemList } from "@/components/item-list"
 import { type BaroItem, parseItemData, calculateTotals, formatNumber } from "@/lib/data-utils"
-import { Download, Upload, RotateCcw } from "lucide-react"
+import { Download, Upload, RotateCcw, List } from "lucide-react"
 
 // NEW
 import miscData from "@/data/misc"
@@ -132,6 +132,14 @@ export default function BaroInventoryManager() {
           </div>
 
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => (window.location.href = "/view-all")}
+              className="flex items-center gap-2 bg-transparent"
+            >
+              <List className="h-4 w-4" />
+              View All
+            </Button>
             <Button variant="outline" onClick={exportData} className="flex items-center gap-2 bg-transparent">
               <Download className="h-4 w-4" />
               Export
