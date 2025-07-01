@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ConvexClientProvider } from "./ConvexClientProvider"
 import { ErrorBoundary } from "@/components/error-boundary"
+import { PostHogProvider } from "@/components/PostHogProvider"
 
 export const metadata: Metadata = {
   title: 'Baro Ki\'teer Inventory Manager - Warframe Void Trader Tracker',
@@ -24,11 +25,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ConvexClientProvider>
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </ConvexClientProvider>
+        <PostHogProvider>
+          <ConvexClientProvider>
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </ConvexClientProvider>
+        </PostHogProvider>
       </body>
     </html>
   )

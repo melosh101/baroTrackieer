@@ -11,6 +11,7 @@ import { useImportExport } from "@/hooks/useImportExport"
 import { ActionButtons } from "@/components/action-buttons"
 import { OverallSummary } from "@/components/overall-summary"
 import { PageSkeleton } from "@/components/page-skeleton"
+import { Footer } from "@/components/footer"
 import { Unauthenticated } from "convex/react"
 
 export default function BaroInventoryManager() {
@@ -126,6 +127,8 @@ export default function BaroInventoryManager() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      <Footer />
     </div>
   )
 }

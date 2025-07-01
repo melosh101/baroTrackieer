@@ -19,6 +19,7 @@ import { ViewAllSummaryCards } from "@/components/view-all-summary-cards"
 import { ItemGrid } from "@/components/item-grid"
 import { ViewAllBottomSummary } from "@/components/view-all-bottom-summary"
 import { ActionButtons } from "@/components/action-buttons"
+import { Footer } from "@/components/footer"
 
 type SortOption = "name" | "ducats" | "credits" | "category"
 type FilterOption = "all" | "owned" | "missing" | "misc" | "appearance" | "mods" | "weapons"
@@ -322,6 +323,8 @@ export default function ViewAllPage() {
           showSummary={filteredAndSortedItems.length > 0}
         />
       </div>
+      
+      <Footer />
     </div>
   )
 }
