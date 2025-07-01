@@ -7,15 +7,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: new Date(),
         },
         {
-            url: "https://barotracker.com/terms",
+            url: "https://warframebaro.com/terms",
             lastModified: new Date(),
         },
         {
-            url: "https://barotracker.com/privacy",
+            url: "https://warframebaro.com/privacy",
             lastModified: new Date(),
         },
         {
-            url: "https://barotracker.com/view-all",
+            url: "https://warframebaro.com/view-all",
             lastModified: new Date(),
         },
     ];
