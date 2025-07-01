@@ -389,6 +389,11 @@ const mods = [
     "ducat": "375",
     "credit": "130,000"
   },
+  {
+    "name": "Primed Steady Hands",
+    "ducat": "300",
+    "credit": "220,000"
+  },
 ] as const
 
 export default mods
