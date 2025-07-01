@@ -7,8 +7,8 @@ import { PostHogProvider } from "@/components/PostHogProvider"
 export const metadata: Metadata = {
   title: 'Baro Ki\'teer Inventory Manager - Warframe Void Trader Tracker',
   description: 'Track your Baro Ki\'teer purchases and calculate missing items from the Void Trader in Warframe. Manage your ducat and credit spending efficiently.',
-  keywords: 'Warframe, Baro Ki\'teer, Void Trader, inventory, tracker, ducats, credits, prime',
-  authors: [{ name: 'Baro Tracker' }],
+  keywords: 'Warframe, Baro Ki\'teer, Void Trader, inventory, tracker, ducats, credits, prime, tennocon baro, baro tracker, warframe baro tracker, warframe baro ki\'teer, warframe void trader, warframe inventory manager',
+  authors: [{ name: 'Melosh', url: "https://milasholsting.dk" }],
   robots: 'index, follow',
   openGraph: {
     title: 'Baro Ki\'teer Inventory Manager',
