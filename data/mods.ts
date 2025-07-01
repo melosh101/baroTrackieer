@@ -358,7 +358,37 @@ const mods = [
     "name": "Primed Chamber",
     "ducat": "2,995",
     "credit": "1,000,000"
-  }
+  },
+  {
+    "name": "Primed Smite Orokin",
+    "ducat": "350",
+    "credit": "140,000"
+  },
+  {
+    "name": "Primed Cleanse Orokin",
+    "ducat": "350",
+    "credit": "140,000"
+  },
+  {
+    "name": "Primed Expel Orokin",
+    "ducat": "350",
+    "credit": "140,000"
+  },
+  {
+    "name": "Primed Smite the Murmur",
+    "ducat": "375",
+    "credit": "130,000"
+  },
+  {
+    "name": "Primed Cleanse the Murmur (not confirmed)",
+    "ducat": "375",
+    "credit": "130,000"
+  },
+  {
+    "name": "Primed Expel the Murmur (not confirmed)",
+    "ducat": "375",
+    "credit": "130,000"
+  },
 ] as const
 
 export default mods
