@@ -14,7 +14,7 @@ export const createFeedback = mutation({
         if(args.feedBackType === 'feedback') {
             await ctx.db.insert("feedback", {
                 userID: user?? undefined,
-                email: args.data.email || null,
+                email: args.data.email || undefined,
                 feedbackText: args.data.feedbackText,
             });
         } else if(args.feedBackType === 'missing item') {

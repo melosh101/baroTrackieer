@@ -12,6 +12,8 @@ import { Input } from "./input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 const formSchema = z.object({
     feedbackType: z.enum(['feedback', 'missing item']),
@@ -50,6 +52,7 @@ type FormData = z.infer<typeof formSchema>;
 
 export function Feedback() {
     const [isOpen, setIsOpen] = useState(false);
+    const sendfeedback = useMutation(api.feedback.createFeedback);
     const { register, handleSubmit, watch, formState: { errors }, setValue } = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -65,12 +68,15 @@ export function Feedback() {
 
     const onSubmit = (data: FormData) => {
         // Submission logic not implemented as requested
-        if(data.feedbackType === 'feedback') {
-            console.log("Feedback submitted:", data.feedbackText, data.email);
-        }
-        else if(data.feedbackType === 'missing item') {
-            console.log("Missing item reported:", data.itemName, data.url);
-        }
+        sendfeedback({
+          feedBackType: data.feedbackType,
+          data: {
+            email: data.email || null,
+            feedbackText: data.feedbackText || null,
+            itemName: data.itemName || null,
+            url: data.url || null,
+          },
+        })
         setIsOpen(false); // Close popover on submission
       };
 
