@@ -12,7 +12,17 @@ const schema = defineSchema({
   userSaveState: defineTable({
     userID: v.string(),
     ownedItems: v.array(v.string()),
-  })
+  }),
+  missingItem: defineTable({
+    userID: v.optional(v.string()),
+    itemName: v.string(),
+    url: v.string(),
+  }),
+  feedback: defineTable({
+    userID: v.optional(v.string()),
+    email: v.optional(v.string()),
+    feedbackText: v.string(),
+  }),
 });
  
 export default schema;
