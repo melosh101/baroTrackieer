@@ -13,6 +13,8 @@ import { OverallSummary } from "@/components/overall-summary"
 import { PageSkeleton } from "@/components/page-skeleton"
 import { Footer } from "@/components/footer"
 import { Unauthenticated } from "convex/react"
+import { Feedback } from "@/components/ui/feedback"
+import GoogleAd from "@/components/GoogleAd"
 
 export default function BaroInventoryManager() {
   const { itemsByCategory, allItems } = useBaroData()
@@ -77,7 +79,7 @@ export default function BaroInventoryManager() {
 
         {/* Overall Summary */}
         <OverallSummary {...overallTotals} />
-
+        <GoogleAd slot="9049292768" />
         <Tabs defaultValue="misc" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="misc">Miscellaneous ({itemsByCategory.misc.length})</TabsTrigger>
@@ -127,7 +129,7 @@ export default function BaroInventoryManager() {
           </TabsContent>
         </Tabs>
       </div>
-      
+      <Feedback />
       <Footer />
     </div>
   )
