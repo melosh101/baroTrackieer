@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warframebaro
+spec:
+  selector:
+    matchLabels:
+      app: warframebaro
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: warframebaro
+    spec:
+      containers:
+        - name: warframebaro
+          image: registry.milasholsting.dk/warframebaro:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3000"
+            - name: NEXT_PUBLIC_API_URL
+              value: "https://warframebaro.com"
+            - name: NEXT_PUBLIC_CONVEX_URL
+              value: ${NEXT_PUBLIC_CONVEX_URL}
+            - name: NEXT_PUBLIC_POSTHOG_KEY
+              value: ${NEXT_PUBLIC_POSTHOG_KEY}
+            - name: NEXT_PUBLIC_POSTHOG_HOST
+              value: ${NEXT_PUBLIC_POSTHOG_HOST}
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warframebaro-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+  selector:
+    app: warframebaro
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: warframebaro-ingress
+  annotations:
+    spec.ingressClassName: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+spec:
+  rules:
+    - host: warframebaro.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: warframebaro-service
+                port:
+                  number: 80
+  tls:
+    - secretName: warframebaro-tls
+      hosts:
+        - warframebaro.com
+
